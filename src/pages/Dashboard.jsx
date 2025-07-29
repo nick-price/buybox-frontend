@@ -22,6 +22,13 @@ const Dashboard = ({ auth, user }) => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [loading, setLoading] = useState(false);
 
+  // Debug logging
+  useEffect(() => {
+    console.log('Dashboard mounted');
+    console.log('User:', user);
+    console.log('Auth:', auth);
+  }, []);
+
   const handleLogout = async () => {
     try {
       await signOut(auth);

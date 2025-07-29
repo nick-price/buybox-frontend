@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, RefreshCw, Package, Users } from 'lucide-react';
 import toast from 'react-hot-toast';
-import axios from 'axios';
+import api from '../utils/api';
 
 const SellerList = ({ compact = false }) => {
   const [sellers, setSellers] = useState([]);
@@ -16,15 +16,13 @@ const SellerList = ({ compact = false }) => {
   const fetchSellers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/tracker/sellers', {
-        headers: {
-          'x-user-id': localStorage.getItem('userId')
-        }
-      });
+      const response = await api.get('/api/tracker/sellers');
       setSellers(response.data);
     } catch (error) {
       console.error('Error fetching sellers:', error);
       toast.error('Failed to fetch sellers');
+      // Set empty array on error to prevent blank screen
+      setSellers([]);
     } finally {
       setLoading(false);
     }
@@ -39,11 +37,7 @@ const SellerList = ({ compact = false }) => {
 
     try {
       setAddingSeller(true);
-      await axios.post('/api/tracker/sellers', newSeller, {
-        headers: {
-          'x-user-id': localStorage.getItem('userId')
-        }
-      });
+      await api.post('/api/tracker/sellers', newSeller);
       
       toast.success('Seller added successfully');
       setNewSeller({ sellerId: '', label: '' });
@@ -62,11 +56,7 @@ const SellerList = ({ compact = false }) => {
     }
 
     try {
-      await axios.delete(`/api/tracker/sellers/${sellerId}`, {
-        headers: {
-          'x-user-id': localStorage.getItem('userId')
-        }
-      });
+      await api.delete(`/api/tracker/sellers/${sellerId}`);
       
       toast.success('Seller deleted successfully');
       fetchSellers();
@@ -79,11 +69,7 @@ const SellerList = ({ compact = false }) => {
   const refreshAsins = async (sellerId) => {
     try {
       toast.loading('Refreshing ASINs...');
-      await axios.post(`/api/tracker/asins/refresh/${sellerId}`, {}, {
-        headers: {
-          'x-user-id': localStorage.getItem('userId')
-        }
-      });
+      await api.post(`/api/tracker/asins/refresh/${sellerId}`, {});
       
       toast.dismiss();
       toast.success('ASINs refreshed successfully');

@@ -11,14 +11,27 @@ import LoadingSpinner from './components/LoadingSpinner';
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyB7trQBZpwCCp4XxNYGCevoJSoltJAwED0",
-  authDomain: "buyboxbot-3cd51.firebaseapp.com",
-  projectId: "buyboxbot-3cd51",
-  storageBucket: "buyboxbot-3cd51.firebasestorage.app",
-  messagingSenderId: "114425801855",
-  appId: "1:114425801855:web:c163fc64d6eac1e2a7e34a",
-  measurementId: "G-53BF1EVKGM"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
 };
+
+// Validate Firebase configuration
+const requiredEnvVars = [
+  'REACT_APP_FIREBASE_API_KEY',
+  'REACT_APP_FIREBASE_AUTH_DOMAIN',
+  'REACT_APP_FIREBASE_PROJECT_ID',
+  'REACT_APP_FIREBASE_APP_ID'
+];
+
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+if (missingEnvVars.length > 0) {
+  console.error('Missing required environment variables:', missingEnvVars);
+}
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -28,6 +41,8 @@ const analytics = getAnalytics(app);
 // Add this console log to see if Firebase is initialized
 console.log('Firebase app:', app);
 console.log('Firebase auth:', auth);
+console.log('Current environment:', process.env.NODE_ENV);
+console.log('Auth domain:', process.env.REACT_APP_FIREBASE_AUTH_DOMAIN);
 
 function App() {
   const [user, setUser] = useState(null);

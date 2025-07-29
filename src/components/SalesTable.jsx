@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TrendingUp, Calendar, Package, DollarSign } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
-import axios from 'axios';
+import api from '../utils/api';
 
 const SalesTable = ({ limit }) => {
   const [sales, setSales] = useState([]);
@@ -25,21 +25,19 @@ const SalesTable = ({ limit }) => {
   const fetchSales = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`/api/tracker/sales?page=${pagination.page}&limit=${pagination.limit}`, {
-        headers: {
-          'x-user-id': localStorage.getItem('userId')
-        }
-      });
+      const response = await api.get(`/api/tracker/sales?page=${pagination.page}&limit=${pagination.limit}`);
       
-      setSales(response.data.sales);
+      setSales(response.data.sales || []);
       setPagination(prev => ({
         ...prev,
-        total: response.data.pagination.total,
-        totalPages: response.data.pagination.totalPages
+        total: response.data.pagination?.total || 0,
+        totalPages: response.data.pagination?.totalPages || 0
       }));
     } catch (error) {
       console.error('Error fetching sales:', error);
       toast.error('Failed to fetch sales data');
+      // Set empty array on error to prevent blank screen
+      setSales([]);
     } finally {
       setLoading(false);
     }

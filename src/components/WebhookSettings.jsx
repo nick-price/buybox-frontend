@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Settings, Save, TestTube, CheckCircle, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
-import axios from 'axios';
+import api from '../utils/api';
 
 const WebhookSettings = () => {
   const [webhookUrl, setWebhookUrl] = useState('');
@@ -16,15 +16,13 @@ const WebhookSettings = () => {
   const fetchWebhookSettings = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/tracker/profile', {
-        headers: {
-          'x-user-id': localStorage.getItem('userId')
-        }
-      });
+      const response = await api.get('/api/tracker/profile');
       setWebhookUrl(response.data.webhookUrl || '');
     } catch (error) {
       console.error('Error fetching webhook settings:', error);
       toast.error('Failed to fetch webhook settings');
+      // Set empty string on error to prevent blank screen
+      setWebhookUrl('');
     } finally {
       setLoading(false);
     }
@@ -40,11 +38,7 @@ const WebhookSettings = () => {
 
     try {
       setSaving(true);
-      await axios.put('/api/tracker/webhook', { webhookUrl }, {
-        headers: {
-          'x-user-id': localStorage.getItem('userId')
-        }
-      });
+      await api.put('/api/tracker/webhook', { webhookUrl });
       
       toast.success('Webhook URL saved successfully');
     } catch (error) {
@@ -63,11 +57,7 @@ const WebhookSettings = () => {
 
     try {
       setTesting(true);
-      await axios.post('/api/tracker/webhook/test', { webhookUrl }, {
-        headers: {
-          'x-user-id': localStorage.getItem('userId')
-        }
-      });
+      await api.post('/api/tracker/webhook/test', { webhookUrl });
       
       toast.success('Test message sent successfully! Check your Discord channel.');
     } catch (error) {

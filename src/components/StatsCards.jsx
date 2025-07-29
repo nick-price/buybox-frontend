@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Package, TrendingUp, Activity } from 'lucide-react';
-import axios from 'axios';
+import api from '../utils/api';
 
 const StatsCards = () => {
   const [stats, setStats] = useState({
@@ -8,6 +8,7 @@ const StatsCards = () => {
     sales: { total: 0 }
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchStats();
@@ -16,14 +17,17 @@ const StatsCards = () => {
   const fetchStats = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/tracker/stats', {
-        headers: {
-          'x-user-id': localStorage.getItem('userId')
-        }
-      });
+      setError(null);
+      const response = await api.get('/api/tracker/stats');
       setStats(response.data);
     } catch (error) {
       console.error('Error fetching stats:', error);
+      setError('Failed to load statistics');
+      // Set default stats on error
+      setStats({
+        asins: { totalAsins: 0, totalSellers: 0 },
+        sales: { total: 0 }
+      });
     } finally {
       setLoading(false);
     }

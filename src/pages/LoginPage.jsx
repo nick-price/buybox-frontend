@@ -10,11 +10,39 @@ const LoginPage = ({ auth }) => {
     setLoading(true);
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      
+      // Add additional scopes if needed
+      provider.addScope('email');
+      provider.addScope('profile');
+      
+      console.log('Attempting Google login...');
+      console.log('Auth domain:', process.env.REACT_APP_FIREBASE_AUTH_DOMAIN);
+      console.log('Current domain:', window.location.hostname);
+      
+      const result = await signInWithPopup(auth, provider);
+      console.log('Login successful:', result.user.email);
       toast.success('Successfully logged in!');
     } catch (error) {
       console.error('Login error:', error);
-      toast.error('Login failed. Please try again.');
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
+      
+      // Provide more specific error messages
+      let errorMessage = 'Login failed. Please try again.';
+      
+      if (error.code === 'auth/unauthorized-domain') {
+        errorMessage = 'This domain is not authorized for Google login. Please contact support.';
+      } else if (error.code === 'auth/popup-closed-by-user') {
+        errorMessage = 'Login was cancelled. Please try again.';
+      } else if (error.code === 'auth/popup-blocked') {
+        errorMessage = 'Popup was blocked. Please allow popups and try again.';
+      } else if (error.code === 'auth/operation-not-allowed') {
+        errorMessage = 'Google login is not enabled. Please contact support.';
+      } else if (error.code === 'auth/invalid-api-key') {
+        errorMessage = 'Invalid configuration. Please contact support.';
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
